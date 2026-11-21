@@ -1,0 +1,19 @@
+# Local credentials
+.env
+.env.*
+!.env.example
+secrets.h
+secrets.json
+config.local.*
+# Build output
+build/
+.pio/
+*.bin
+*.elf
+*.o
+# Web dependencies
+node_modules/
+dist/
+# Local OS files
+.DS_Store
+Thumbs.db
