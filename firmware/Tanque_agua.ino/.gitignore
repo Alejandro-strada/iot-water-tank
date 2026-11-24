@@ -1,0 +1,4 @@
+build/
+wifi_config.h
+firebase_device_secret.h
+firebase_device_identity.json

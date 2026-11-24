@@ -17,3 +17,8 @@ dist/
 # Local OS files
 .DS_Store
 Thumbs.db
+
+# ESP32 private credentials
+wifi_config.h
+firebase_device_secret.h
+firebase_device_identity.json
