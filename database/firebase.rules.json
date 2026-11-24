@@ -1,0 +1,18 @@
+{
+  "rules": {
+    "tanque": {
+      ".read": "auth != null && (auth.uid === 'of0c9b78ooejIVnV0jFQPAZkoxb2' || auth.uid === 'aQbGhNYg4jYDsMeZzo4eaO4EQc43')",
+      "actual": {
+        ".write": "auth != null && auth.uid === 'of0c9b78ooejIVnV0jFQPAZkoxb2'",
+        ".validate": "newData.hasChildren(['llenadoPorcentaje', 'nivelAlturaPorcentaje', 'litros', 'distanciaCm', 'actualizadoEn'])",
+        "llenadoPorcentaje": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100" },
+        "nivelAlturaPorcentaje": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100" },
+        "litros": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 2" },
+        "distanciaCm": { ".validate": "newData.isNumber() && newData.val() >= 2 && newData.val() <= 400" },
+        "actualizadoEn": { ".validate": "newData.isNumber() && newData.val() <= now + 10000" },
+        "$other": { ".validate": false }
+      },
+      "configuracion": { ".write": false }
+    }
+  }
+}
