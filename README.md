@@ -1,86 +1,172 @@
 # IoT Water Tank Monitor
 
-A university team project to estimate the water available in a small container representing a storage tank, save measurements in the cloud, and display them on a web dashboard.
+University team project for monitoring water stored in a small prototype tank using an ESP32, an HC-SR04 ultrasonic sensor, Firebase Realtime Database and a responsive web dashboard.
 
-## Project goal
+## Project status
 
-Help users check how much water remains and review changes over time without inspecting the container directly. The prototype will connect physical sensing, embedded processing, Wi-Fi communication, cloud storage, and browser visualization.
+As of November 24, 2026, the repository contains the dashboard, ESP32 firmware and Firebase security rules. The firmware includes reported physical calibration references and authenticated cloud communication. End-to-end operation, measurement accuracy, repeatability and deployed database rules still require documented verification.
 
-This is a monitoring prototype. Automatic pump control, drinking-water quality assessment, and deployment in a real household tank are outside the initial scope.
+- **Implemented in source:** distance filtering, volume estimation, Wi-Fi connectivity, authenticated database updates, live dashboard subscriptions, demonstration mode and CSV export.
+- **Pending validation:** physical accuracy, long-running connectivity, authorization behavior and deployment.
+- **Not implemented in the physical prototype:** pump control and persistent measurement history. Dashboard controls and history can be demonstrated in simulation; live optional paths require additional integration.
 
-## Current status
+## Dashboard preview
 
-**Documentation and planning in this repository; team prototype at the container-calibration stage.**
-
-As of November 21, 2026, Alfonso's repository reports successful board and distance-sensor functional tests. Its current firmware measures distance only. Numeric accuracy and repeatability have not yet been established, and water-volume calibration remains pending.
-
-This repository does not yet contain firmware, a working dashboard, or a deployed backend. Test reports from the teammate's repository are reference evidence, not tests independently performed here.
-
-## How the system will work
-
-1. An HC-SR04 ultrasonic sensor measures the gap between its transducers and the water surface.
-2. An ESP32 validates readings and will filter fluctuations.
-3. Calibration converts valid distances into water level and estimated volume.
-4. The ESP32 will send measurements over Wi-Fi using HTTPS.
-5. A cloud service will store timestamped records.
-6. A web dashboard will display the latest level, estimated liters, history, and status alerts.
-
-As water rises, the measured distance decreases. Missing echoes must be treated as measurement failures, not as an empty tank.
-
-## Components and technologies
-
-| Part | Selected or proposed approach | Status |
-| --- | --- | --- |
-| Microcontroller | ESP32, programmed with C++ in Arduino IDE 2 | Used in teammate's prototype |
-| Sensor | HC-SR04 with an ECHO voltage divider | Functional distance test reported |
-| Container | Transparent container with graduations through 2500 ml | Selected; usable capacity unverified |
-| Calibration | Known-volume/distance pairs and later piecewise linear interpolation | Planned; reference readings pending |
-| Connectivity | Wi-Fi and HTTPS | Not implemented |
-| Cloud storage | ThingSpeak proposed; Supabase/PostgreSQL if relational modeling is required | Decision pending course requirements |
-| Dashboard | HTML, CSS, and JavaScript | Not implemented |
-| Version control | Git and GitHub | Repository initialized |
-
-## Planned dashboard
-
-- Latest valid water level and estimated volume in liters.
-- Clearly labeled percentage: height or volume, depending on calibration.
-- Measurement history chart and last-update time.
-- Low-water indication with a threshold agreed by the team.
-- Separate states for sensor errors, missing data, and stale measurements.
-- Usable layout on phones and computers.
-
-A zero value, an invalid measurement, and a connection failure must not look identical.
-
-## Documentation
-
-| Document | Contents |
+| Desktop | Mobile |
 | --- | --- |
-| [Architecture](docs/architecture.md) | Data flow, responsibilities, and proposed measurement fields |
-| [Hardware and wiring](docs/hardware.md) | Components, existing pin assignment, and electrical precautions |
-| [Container and calibration](docs/calibration.md) | Reported dimensions, missing references, and calibration procedure |
-| [Technical decisions](docs/decisions.md) | Selected technologies and unresolved choices |
-| [Development roadmap](docs/roadmap.md) | Stages, deliverables, and completion criteria |
-| [Firmware](firmware/README.md) | Current teammate implementation and planned additions |
-| [Dashboard](dashboard/README.md) | Planned interface behavior and integration |
-| [Test plan](tests/README.md) | Evidence needed to validate the system |
+| ![Desktop dashboard](dashboard/preview/app-escritorio.png) | ![Mobile dashboard](dashboard/preview/app-celular.png) |
+
+These are repository interface previews, not evidence of live hardware operation.
+
+## System architecture
+
+```mermaid
+flowchart TD
+    A[HC-SR04 ultrasonic sensor] --> B[ESP32]
+    B --> C[Median filter and calibration]
+    C -->|Wi-Fi / HTTPS| D[Firebase Realtime Database]
+    E[Firebase Authentication] -.-> B
+    E -.-> F[Web dashboard]
+    D -->|Realtime subscriptions| F
+```
+
+The sensor measures the gap between its transducers and the water surface. As water rises, distance decreases. The firmware rejects invalid echoes, filters five samples and uses piecewise linear interpolation to estimate volume. Valid readings are uploaded approximately every five seconds when connectivity and authentication permit.
+
+## Hardware and software
+
+| Component | Technology |
+| --- | --- |
+| Microcontroller | ESP32, Arduino C++ |
+| Distance sensor | HC-SR04 |
+| Sensor connections | TRIG GPIO 18; ECHO GPIO 19 through a voltage divider |
+| Prototype usable capacity | 2 L, according to the current calibration table |
+| Communication | Wi-Fi, HTTPS with TLS certificate validation |
+| Cloud storage | Firebase Realtime Database |
+| Authentication | Firebase Authentication |
+| Frontend | HTML, CSS, JavaScript, Vite |
+| Version control | Git and GitHub |
+
+**Electrical precaution:** never connect a 5 V HC-SR04 ECHO output directly to an ESP32 GPIO. Use a suitable voltage divider or level shifter, common ground and keep electronics dry. See [hardware notes](docs/hardware.md).
+
+## Calibration
+
+The firmware contains the following reported volume/distance references from November 24, 2026.
+
+| Volume (L) | Distance (cm) |
+| ---: | ---: |
+| 0.00 | 20.56 |
+| 0.25 | 17.29 |
+| 0.50 | 15.98 |
+| 0.75 | 13.93 |
+| 1.00 | 11.54 |
+| 1.25 | 8.82 |
+| 1.50 | 7.82 |
+| 1.75 | 4.92 |
+| 2.00 | 2.98 |
+
+Volume percentage is calculated relative to the 2 L usable capacity; height percentage is calculated from the distance endpoints. These are different quantities. Calibration points do not establish measurement uncertainty, and changing the sensor position requires recalibration.
+
+## Repository structure
+
+```text
+iot-water-tank/
+├── dashboard/
+│   ├── src/
+│   ├── public/
+│   ├── preview/
+│   ├── index.html
+│   ├── package.json
+│   ├── package-lock.json
+│   └── .env.example
+├── database/
+│   ├── firebase.rules.json
+│   └── firebase.rules.template.json
+├── firmware/
+│   └── Tanque_agua.ino/
+│       ├── Tanque_agua.ino.ino
+│       ├── tank_processing.h
+│       ├── firebase_config.h
+│       ├── firebase_ca.h
+│       ├── wifi_config.example.h
+│       └── firebase_device_secret.example.h
+├── docs/
+├── tests/
+└── README.md
+```
+
+## Getting started
+
+### 1. Run the dashboard
+
+Install a Node.js version compatible with the Vite dependency in the package manifest, then run:
+
+```bash
+git clone https://github.com/Alejandro-strada/iot-water-tank.git
+cd iot-water-tank/dashboard
+npm ci
+npm run dev
+```
+
+Open the local URL printed by Vite. With no Firebase configuration, the application can run in demonstration mode. For live operation:
+
+```bash
+cp .env.example .env.local
+```
+
+Review and configure the Firebase project identifiers and database paths in the local file, then restart Vite. Live access requires an authenticated identity authorized by the database rules. The current dashboard attempts anonymous authentication, but a newly generated UID is not automatically authorized. Provision an authorized browser identity and configure the login flow or rules appropriately; do not make the database publicly readable.
+
+Build the frontend with `npm run build` and inspect the build with `npm run preview`. The repository itself does not provide a deployed website.
+
+### 2. Configure Firebase
+
+Create or use an authorized Firebase project with Realtime Database and Authentication. Review [the rules template](database/firebase.rules.template.json), replace identity placeholders with the intended device and viewer UIDs, and apply the reviewed rules in Firebase Console. Configure the appropriate authentication providers.
+
+The supplied [rules](database/firebase.rules.json) restrict tank reads to specific authenticated identities, allow the designated device to write current readings and validate measurement fields. Configuration writes are denied to clients. Verify the deployed rules separately.
+
+| Database path | Purpose |
+| --- | --- |
+| `tanque/actual/llenadoPorcentaje` | Estimated volume percentage |
+| `tanque/actual/nivelAlturaPorcentaje` | Height percentage |
+| `tanque/actual/litros` | Estimated liters |
+| `tanque/actual/distanciaCm` | Filtered distance |
+| `tanque/actual/actualizadoEn` | Server timestamp |
+| `tanque/configuracion/capacidadLitros` | Configured capacity; provision as administrator |
+
+The firmware updates the current record rather than storing an append-only measurement history. Without a configured history path, the dashboard retains readings only during the current page session. Git stores the rules and source code, not live Firebase records.
+
+### 3. Configure the ESP32
+
+1. Install Arduino IDE and ESP32 board support.
+2. Open [the sketch](firmware/Tanque_agua.ino/Tanque_agua.ino.ino) and select the appropriate board and serial port.
+3. Copy `wifi_config.example.h` to `wifi_config.h` and enter local Wi-Fi credentials.
+4. Copy `firebase_device_secret.example.h` to `firebase_device_secret.h` and provision the authorized device refresh token privately. Review `firebase_config.h` for the target project.
+5. Confirm the device UID is authorized in the database rules, wire the sensor safely and upload the sketch.
+6. Open the serial monitor at 115200 baud and check calibration status, Wi-Fi connectivity, valid readings and Firebase HTTP responses.
+
+## Security
+
+Keep Wi-Fi passwords, refresh tokens, device identity files and local environment files out of Git. Firebase client API keys identify the project and do not independently grant database access; enforce authentication, appropriate API restrictions and database rules. Do not publish private credentials or loosen access rules to bypass authentication errors.
+
+## Documentation and validation
+
+The following supporting documents include earlier planning material and may lag behind the current implementation; this README describes the current source code.
+
+- [Architecture](docs/architecture.md)
+- [Hardware and wiring](docs/hardware.md)
+- [Container and calibration](docs/calibration.md)
+- [Technical decisions](docs/decisions.md)
+- [Development roadmap](docs/roadmap.md)
+- [Firmware notes](firmware/README.md)
+- [Dashboard notes](dashboard/README.md)
+- [Test plan](tests/README.md)
+
+Next steps: validate repeated measurements against known volumes, test rejected echoes and reconnect behavior, verify live authentication and database permissions, document build results and deploy the dashboard if required.
 
 ## Team and reference repository
 
-- **Alejandro Estrada:** owner of this repository.
-- **Alfonso Carranza:** teammate; maintains [iot-water-tank-monitor](https://github.com/AlfonsoCaBa/iot-water-tank-monitor).
+- **Alejandro Estrada** — repository owner.
+- **Alfonso Carranza** — teammate; maintains [iot-water-tank-monitor](https://github.com/AlfonsoCaBa/iot-water-tank-monitor).
 
-The complete team roster and individual responsibilities are still to be recorded. This documentation summarizes the shared project direction based on Alfonso's repository, reviewed at commit [d2ad9a0](https://github.com/AlfonsoCaBa/iot-water-tank-monitor/commit/d2ad9a06b27a0a1791f8e021465136d35e3d9df2). His source code and photographs have not been copied here.
+Earlier planning referenced Alfonso's repository at [commit d2ad9a0](https://github.com/AlfonsoCaBa/iot-water-tank-monitor/commit/d2ad9a06b27a0a1791f8e021465136d35e3d9df2). The complete team roster and responsibilities remain to be recorded.
 
-Before integrating implementation work, the team should agree which repository is the integration source and how contributions will be reviewed.
-
-## Working conventions
-
-- Keep documentation, code comments, and commit messages in English.
-- Describe planned work separately from implemented and physically tested behavior.
-- Record actual measurements, setup conditions, errors, and limitations.
-- Keep Wi-Fi passwords, write API keys, and other secrets out of commits.
-- Use small commits with descriptive messages and preserve attribution when integrating teammate contributions.
-
-## Next milestone
-
-Fix the sensor mount and collect repeated measurements for an empty container and a known 500 ml water sample. Confirm the course's database requirements before selecting cloud storage. See the [roadmap](docs/roadmap.md).
+This is an educational monitoring prototype, not a certified household water management or drinking-water quality system.
