@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#073c50" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>Tanque de agua inteligente</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <svg class="icon-sprite" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <symbol id="icon-drop" viewBox="0 0 24 24"><path d="M12 2.5C9 7.2 5.5 10.6 5.5 15a6.5 6.5 0 0 0 13 0C18.5 10.6 15 7.2 12 2.5Z"/><path d="M9 16.2c.4 1.3 1.4 2.1 2.7 2.4"/></symbol>
+      <symbol id="icon-home" viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V10Z"/><path d="M9 21v-7h6v7"/></symbol>
+      <symbol id="icon-control" viewBox="0 0 24 24"><path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="2"/><circle cx="16" cy="17" r="2"/></symbol>
+      <symbol id="icon-history" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/></symbol>
+      <symbol id="icon-bell" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 8-3 9h18c0-1-3-2-3-9Z"/><path d="M10 21h4"/></symbol>
+      <symbol id="icon-settings" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/><circle cx="8" cy="5" r="2"/><circle cx="16" cy="12" r="2"/><circle cx="10" cy="19" r="2"/></symbol>
+      <symbol id="icon-download" viewBox="0 0 24 24"><path d="M12 3v12m-4-4 4 4 4-4M4 18v3h16v-3"/></symbol>
+      <symbol id="icon-power" viewBox="0 0 24 24"><path d="M12 2v10M6.1 5.7a9 9 0 1 0 11.8 0"/></symbol>
+      <symbol id="icon-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 2.6 2.6L16 9"/></symbol>
+    </svg>
+    <div id="app">
+      <header class="app-header">
+        <div class="header-inner">
+          <a href="#inicio" class="brand"><svg class="brand-icon" aria-hidden="true"><use href="#icon-drop"/></svg><span>Tanque <b>IoT</b></span></a>
+          <div class="header-actions"><span id="mode-badge" class="badge demo">Demostración</span><button id="auth-button" class="header-button" hidden>Iniciar sesión</button></div>
+        </div>
+      </header>
+
+      <main class="shell">
+        <div id="notice" class="notice" role="status" aria-live="polite">Demostración: los datos y controles son simulados hasta conectar Firebase.</div>
+
+        <section id="page-inicio" class="page" aria-labelledby="title-inicio">
+          <div class="page-heading"><div><h1 id="title-inicio">Tanque de agua inteligente</h1><p>Consulta los datos principales y accede rápidamente a cada función.</p></div><span id="home-live-label" class="live-label"><i></i> Datos de demostración</span></div>
+          <div class="home-primary">
+            <article class="card level-card"><div class="card-head"><div><h2>Agua disponible</h2></div><span id="level-pill" class="pill">Normal</span></div><div class="level-display"><div class="tank" role="img" aria-label="Nivel de agua en el tanque"><div id="water" class="water"></div><span class="tank-line l75"></span><span class="tank-line l50"></span><span class="tank-line l25"></span></div><div class="level-readout"><div><strong id="level-value">--</strong><span>%</span></div><p id="level-description">Esperando datos</p><div class="progress"><div id="level-progress"></div></div></div></div></article>
+            <article class="card pump-card"><div class="card-head"><div><h2>Bomba de agua</h2></div><span id="pump-light" class="pump-light"></span></div><strong id="pump-value" class="pump-big">Sin lectura</strong><p id="pump-description" class="card-copy">El ESP32 debe confirmar el estado actual.</p><div class="pump-inline"><svg id="pump-icon" class="pump-icon" aria-hidden="true"><use href="#icon-power"/></svg><span id="pump-detail">Esperando conexión</span></div></article>
+          </div>
+          <div class="status-grid"><article class="card stat"><p class="kicker">CONEXIÓN</p><strong id="connection-text">Demostración</strong><small id="connection-detail">Valores simulados</small></article><article class="card stat"><p class="kicker">ÚLTIMA LECTURA</p><strong id="last-update">—</strong><small id="update-detail">Hora de recepción</small></article><article class="card stat"><p class="kicker">MODO DE OPERACIÓN</p><strong id="mode-value">Manual</strong><small id="mode-detail">Control de la bomba</small></article></div>
+          <article class="card actions-card"><div class="card-head"><div><h2>Control inmediato</h2></div></div><div class="action-row"><button id="home-pump-on" class="button primary">Encender bomba</button><button id="home-pump-off" class="button outline">Apagar bomba</button><button id="home-manual" class="button ghost">Modo manual</button></div><p id="home-action-help" class="hint">Los botones solo cambian la simulación.</p></article>
+          <div class="quick-links"><button data-go="historial" class="quick-link"><svg class="quick-icon" aria-hidden="true"><use href="#icon-history"/></svg><b>Historial</b><small>Lecturas y eventos</small></button><button data-go="alertas" class="quick-link"><svg class="quick-icon" aria-hidden="true"><use href="#icon-bell"/></svg><b>Alertas</b><small>Avisos activos</small></button><button data-go="alertas" data-focus="settings" class="quick-link"><svg class="quick-icon" aria-hidden="true"><use href="#icon-settings"/></svg><b>Ajustes</b><small>Umbrales y capacidad</small></button><button id="reports-link" class="quick-link"><svg class="quick-icon" aria-hidden="true"><use href="#icon-download"/></svg><b>Reportes</b><small>Exportar CSV</small></button></div>
+        </section>
+
+        <section id="page-control" class="page" aria-labelledby="title-control" hidden>
+          <div class="page-heading"><div><h1 id="title-control">Control de bomba</h1><p>Consulta el estado y selecciona cómo opera el sistema.</p></div></div>
+          <div class="control-layout"><div class="stack"><article class="card"><div class="card-head"><div><h2>Estado en tiempo real</h2></div></div><div class="overview-grid"><div><small>Nivel actual</small><strong id="control-level">--%</strong></div><div><small>Estado de la bomba</small><strong id="control-pump">Sin lectura</strong></div><div><small>Modo actual</small><strong id="control-mode">Manual</strong></div></div></article><article class="card"><div class="card-head"><div><h2>Modo y órdenes</h2></div></div><label class="field-title">Modo</label><div class="segmented"><button id="mode-auto" type="button">Automático</button><button id="mode-manual" type="button">Manual</button></div><p id="mode-help" class="hint">En modo automático, el ESP32 decide cuándo activar la bomba según sus reglas.</p><label class="field-title field-gap">Estado en modo manual</label><div class="action-row"><button id="control-pump-on" class="button primary">Encender</button><button id="control-pump-off" class="button outline">Apagar</button></div><p id="control-help" class="hint">El estado real se confirma cuando el ESP32 lo publica.</p></article></div><div class="stack"><article class="card"><div class="card-head"><div><h2>Umbrales de nivel</h2></div></div><label class="range-label" for="control-min">Nivel mínimo <output id="control-min-output">20%</output></label><input id="control-min" type="range" min="0" max="99" value="20" /><label class="range-label" for="control-max">Nivel máximo <output id="control-max-output">90%</output></label><input id="control-max" type="range" min="1" max="100" value="90" /><button id="save-control-thresholds" class="button primary full">Guardar umbrales</button><p id="threshold-help" class="hint">Ejemplo: encender por debajo del mínimo y detener al llegar al máximo.</p></article><article class="card"><p class="kicker">NAVEGACIÓN Y SEGURIDAD</p><div class="row-links"><button data-go="historial">Historial de eventos <span>→</span></button><button data-go="alertas">Alertas activas <span>→</span></button></div><p class="hint">El ESP32 debe detener la bomba si el sensor falla, aunque la web indique encender.</p></article></div></div>
+        </section>
+
+        <section id="page-historial" class="page" aria-labelledby="title-historial" hidden>
+          <div class="page-heading"><div><h1 id="title-historial">Lecturas y eventos</h1><p>Consulta el nivel a lo largo del tiempo y filtra los cambios registrados.</p></div></div>
+          <article class="card filters"><label>Rango de fechas<select id="date-filter"><option value="24h">Últimas 24 horas</option><option value="7d">Últimos 7 días</option><option value="all">Todo lo disponible</option></select></label><label>Tipo de evento<select id="type-filter"><option value="all">Todos</option><option value="level">Nivel</option><option value="pump">Bomba</option><option value="mode">Modo</option><option value="alert">Alerta</option><option value="settings">Ajustes</option></select></label><button id="apply-filters" class="button primary">Aplicar</button><button id="export-csv" class="button outline">Exportar CSV</button></article>
+          <div class="history-layout"><article class="card chart-card"><div class="card-head"><div><h2>Tendencia</h2></div><span id="history-count" class="count">0 lecturas</span></div><div class="chart"><div class="chart-axis"><span>100%</span><span>75%</span><span>50%</span><span>25%</span><span>0%</span></div><svg id="history-chart" viewBox="0 0 600 240" preserveAspectRatio="none" role="img" aria-label="Gráfica del nivel del agua"></svg></div><div class="chart-times"><span id="chart-start">—</span><span id="chart-end">—</span></div><p id="history-source" class="hint">Lecturas de demostración.</p></article><article class="card events-card"><div class="card-head"><div><h2>Registros recientes</h2></div></div><div id="events-list" class="events-list"></div></article></div>
+        </section>
+
+        <section id="page-alertas" class="page" aria-labelledby="title-alertas" hidden>
+          <div class="page-heading"><div><h1 id="title-alertas">Configura tus avisos</h1><p>Revisa las alertas activas y ajusta los límites del tanque.</p></div></div>
+          <div class="settings-layout"><div class="stack"><article class="card"><div class="card-head"><div><h2>Estado del tanque</h2></div><span id="alert-count" class="count">0 alertas</span></div><div id="alerts-list" class="alerts-list"></div></article><article class="card"><p class="kicker">INFORMACIÓN</p><p class="card-copy">Las alertas se calculan con las lecturas visibles en esta página. Los avisos del navegador solo aparecen mientras está abierta.</p></article></div><article id="settings" class="card settings-card"><div class="card-head"><div><h2>Ajustes del tanque</h2></div></div><form id="settings-form"><label>Capacidad del tanque <span class="input-wrap"><input id="capacity" type="number" min="1" step="0.1" placeholder="Opcional" /><span>L</span></span></label><label>Alerta de bajo nivel <span class="input-wrap"><input id="alert-low" type="number" min="0" max="99" value="20" required /><span>%</span></span></label><label>Alerta de alto nivel <span class="input-wrap"><input id="alert-high" type="number" min="1" max="100" value="90" required /><span>%</span></span></label><label class="setting-row"><span><strong>Notificaciones</strong><small>Avisos del navegador mientras la web esté abierta</small></span><input id="notifications" type="checkbox" /></label><label>Unidades de medida <select id="units"><option value="percent">Porcentaje (%)</option><option value="liters">Litros (L)</option></select></label><button id="save-settings" type="submit" class="button primary full">Guardar cambios</button><p id="settings-help" class="hint">Los ajustes de demostración se guardan en este navegador.</p></form></article></div>
+        </section>
+      </main>
+
+      <nav class="bottom-nav" aria-label="Secciones principales"><a href="#inicio" data-page="inicio"><svg class="nav-icon" aria-hidden="true"><use href="#icon-home"/></svg>Inicio</a><a href="#control" data-page="control"><svg class="nav-icon" aria-hidden="true"><use href="#icon-control"/></svg>Control</a><a href="#historial" data-page="historial"><svg class="nav-icon" aria-hidden="true"><use href="#icon-history"/></svg>Historial</a><a href="#alertas" data-page="alertas"><svg class="nav-icon" aria-hidden="true"><use href="#icon-bell"/></svg>Alertas y ajustes</a></nav>
+
+      <dialog id="login-dialog" aria-labelledby="login-title"><form id="login-form"><h2 id="login-title">Iniciar sesión</h2><p>Usa una cuenta autorizada de Firebase Authentication.</p><label>Correo electrónico<input id="email" type="email" autocomplete="username" required /></label><label>Contraseña<input id="password" type="password" autocomplete="current-password" required /></label><p id="login-error" class="form-error" role="alert"></p><div class="dialog-actions"><button id="cancel-login" type="button" class="button outline">Cancelar</button><button type="submit" class="button primary">Entrar</button></div></form></dialog>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
